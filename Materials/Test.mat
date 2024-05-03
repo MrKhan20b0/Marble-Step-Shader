@@ -7,14 +7,15 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Unlit_MarbleStep
+  m_Name: Test
   m_Shader: {fileID: 4800000, guid: 8fcb30ed802db62429eaab8e2e089b75, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - ACCOUNT_VIEW_PITCH
-  m_InvalidKeywords:
   - FILM_GRAIN
+  m_InvalidKeywords:
+  - DEBUG_ON
   - _CLAMPDEPTH_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -35,24 +36,28 @@ Material:
     - _CON2: 0
     - _CamOffset: -1
     - _ClampDepth: 1
-    - _Contrast: 20.2
+    - _Contrast: 57.4
+    - _DScale: 0
     - _Debug: 0
+    - _FilmGrainIntensity: 0.139
     - _FilmGrain_Toggle: 1
-    - _GrainIntensity: 0.478
+    - _GrainFrequency: 13128
+    - _GrainIntensity: 0.66
     - _LineOffset: 0.001
     - _Lines: 0.0001
-    - _MaxDepth: 3.78
-    - _MinDepth: -7.61
-    - _Offset: -0.09
+    - _MaxDepth: 10
+    - _MinDepth: -10
+    - _Offset: -0.133
     - _ShadowNoise: 0.5
-    - _ShadowNoiseChance: 0.784
-    - _ShadowWeight: 0.316
-    - _Steps: 39
+    - _ShadowNoiseChance: 0.409
+    - _ShadowWeight: 0.441
+    - _Steps: 1000
     - _ViewPitchInfluence: 1
     - _ViewPitchInfluence_Toggle: 1
     m_Colors:
     - _ColorOne: {r: 1, g: 1, b: 1, a: 1}
     - _ColorTwo: {r: 0, g: 0.009433953, b: 0.2924528, a: 1}
-    - _GrainColor: {r: 0.24999997, g: 0.5, b: 0.5, a: 1}
+    - _FilmGrainColor: {r: 0.4245283, g: 0.4245283, b: 0.4245283, a: 1}
+    - _GrainColor: {r: 0.46226418, g: 0.46226418, b: 0.46226418, a: 1}
     - _ShadowColor: {r: 0.035294056, g: 0, b: 1, a: 1}
   m_BuildTextureStacks: []

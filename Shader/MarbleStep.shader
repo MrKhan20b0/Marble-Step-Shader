@@ -9,7 +9,7 @@ Shader "Unlit/MarbleStep"
         _MaxDepth   ("Max Depth", Range(-10, 10)) = 2
         _MinDepth   ("Min Depth", Range(-10, 10)) = -2
         [MaterialToggle] _ClampDepth("Clamp Depth", Float) = 1
-        [Toggle(DEBUG)] _Debug("Debug Colors (Compile Time)", int) = 1
+        [Toggle(DEBUG)] _Debug("Debug Colors (Compile)", int) = 1
         [Space(25)]
 
         [Header(SHADING)]
@@ -21,8 +21,14 @@ Shader "Unlit/MarbleStep"
         _ShadowWeight ("Layer Shadow Amount", Range(0, 1)) = 0.5
         _ShadowNoiseChance ("Layer Shadow Noise", Range(0, 1)) = 0.5
 
-        [Toggle(ACCOUNT_VIEW_PITCH)] _ViewPitchInfluence_Toggle ("View Pitch Angle Influence Toggle", int) = 1
+        [Toggle(ACCOUNT_VIEW_PITCH)] _ViewPitchInfluence_Toggle ("View Pitch Angle Influence (Compile)", int) = 1
         _ViewPitchInfluence ("View Pitch Angle Influence", Range(0, 1)) = 1
+
+
+        [Toggle(FILM_GRAIN)] _FilmGrain_Toggle ("Enable Film Grain (Compile)", int) = 1
+        _FilmGrainIntensity ("Grain Intensity", Range(0, 1)) = 0.5
+        _FilmGrainColor ("Grain Color", Color) = (.25, .5, .5, 1)
+
     }
     SubShader
     {
@@ -38,6 +44,7 @@ Shader "Unlit/MarbleStep"
 
             #pragma shader_feature DEBUG
             #pragma shader_feature ACCOUNT_VIEW_PITCH
+            #pragma shader_feature FILM_GRAIN
 
             #include "UnityCG.cginc"
 
@@ -52,7 +59,8 @@ Shader "Unlit/MarbleStep"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv: TEXCOORD1;
-                float  depth : TEXCOORD0;
+                float  depth : DEPTH;
+                float2 screenPos :TEXCOORD2;
             };
 
             sampler2D _MainTex;
@@ -70,6 +78,9 @@ Shader "Unlit/MarbleStep"
 
             float _MinDepth;
             float _MaxDepth;
+
+            float _FilmGrainIntensity;
+            float4 _FilmGrainColor;
 
             // https://stackoverflow.com/a/4275343
             float rand(float2 uv) {
@@ -103,11 +114,12 @@ Shader "Unlit/MarbleStep"
 
             v2f vert (appdata v)
             {
-
+               
                 v2f o;
 
                 // Vertex position in world
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex    = UnityObjectToClipPos(v.vertex);
+                o.screenPos = ComputeScreenPos(o.vertex);
                 
                 float3 cameraModelViewDir  = UNITY_MATRIX_IT_MV[2].xyz;
 
@@ -138,6 +150,7 @@ Shader "Unlit/MarbleStep"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                static const float PI = 3.141592653589793238462643383279502884197;
 
                 fixed4 col;
 
@@ -188,6 +201,10 @@ Shader "Unlit/MarbleStep"
                     col += col * (_ShadowColor * layerShadowAmount * _ShadowWeight);
                 }
 
+#ifdef FILM_GRAIN
+                float4 grain = _FilmGrainColor * _FilmGrainIntensity * frac( 10000 * sin ((i.screenPos.x + i.screenPos.y * _Time.z * 100) * PI));
+                col += grain; 
+#endif
                 return col;
             }
             ENDCG

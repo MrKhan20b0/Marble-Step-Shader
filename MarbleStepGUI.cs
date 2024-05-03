@@ -21,15 +21,20 @@ public class MarbleStepGUI : ShaderGUI
                 return property;
             }
  
+ 
         // We assume all required properties can be found, otherwise something is broken
         if (propertyIsMandatory)
             throw new ArgumentException("Could not find MaterialProperty: '" + propertyName + "', Num properties: " + propertyList.Count);
         return null;
     }
 
-    static void RemoveIfDisabled(string propertyName, List<MaterialProperty> propertyList, Material targetMat) {
-        if (targetMat.GetFloat(propertyName + "_Toggle") == 0)
-            FindAndRemoveProperty(propertyName, propertyList);
+    static void RemoveIfDisabled(string propertyName, string[] proppertiesToRemove, List<MaterialProperty> propertyList, Material targetMat) {
+
+        if (targetMat.GetFloat(propertyName) == 0) {
+            foreach (string s in proppertiesToRemove) {
+                FindAndRemoveProperty(s, propertyList);
+            } 
+        }
     }
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
@@ -41,12 +46,13 @@ public class MarbleStepGUI : ShaderGUI
         // render the default gui
         // base.OnGUI(materialEditor, properties);
 
-        RemoveIfDisabled("_ViewPitchInfluence", propertyList, targetMat);
+        UnityEngine.Debug.Log("HEY");
+
+        RemoveIfDisabled("_ViewPitchInfluence_Toggle", new[]{"_ViewPitchInfluence"}, propertyList, targetMat);
+        RemoveIfDisabled("_FilmGrain_Toggle", new[]{"_FilmGrainIntensity", "_FilmGrainColor"}, propertyList, targetMat);
 
         if (propertyList.Count > 0)
         {
-            GUILayout.Space(12);
-            GUILayout.Label("Additional Properties", EditorStyles.boldLabel);
  
             for (int i=0; i<propertyList.Count; i++)
             {
