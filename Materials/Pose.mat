@@ -11,8 +11,10 @@ Material:
   m_Shader: {fileID: 4800000, guid: 8fcb30ed802db62429eaab8e2e089b75, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - ACCOUNT_VIEW_PITCH
   m_InvalidKeywords:
+  - DEBUG_ON
   - _CLAMPDEPTH_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -34,6 +36,7 @@ Material:
     - _CamOffset: -1
     - _ClampDepth: 1
     - _Contrast: 57.4
+    - _DScale: 1
     - _Debug: 0
     - _LineOffset: 0.001
     - _Lines: 0.0001
@@ -44,6 +47,8 @@ Material:
     - _ShadowNoiseChance: 0.5
     - _ShadowWeight: 1
     - _Steps: 44
+    - _ViewPitchInfluence: 1
+    - _ViewPitchInfluence_Toggle: 1
     m_Colors:
     - _ColorOne: {r: 1, g: 1, b: 1, a: 1}
     - _ColorTwo: {r: 0, g: 0.009433953, b: 0.2924528, a: 1}
