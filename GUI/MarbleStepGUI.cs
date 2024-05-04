@@ -51,6 +51,7 @@ public class MarbleStepGUI : ShaderGUI
 
         RemoveIfDisabled("_ViewPitchInfluence_Toggle", new[]{"_ViewPitchInfluence"}, propertyList, targetMat);
         RemoveIfDisabled("_FilmGrain_Toggle", new[]{"_FilmGrainIntensity", "_FilmGrainColor"}, propertyList, targetMat);
+        RemoveIfDisabled("_SoftClamp_Toggle", new[]{"_SoftClampPower"}, propertyList, targetMat);
 
         if (propertyList.Count > 0)
         {

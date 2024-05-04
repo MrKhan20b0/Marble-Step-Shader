@@ -9,6 +9,8 @@ Shader "Unlit/MarbleStep"
         _MaxDepth   ("Max Depth", Range(-10, 10)) = 2
         _MinDepth   ("Min Depth", Range(-10, 10)) = -2
         [MaterialToggle] _ClampDepth("Clamp Depth", Float) = 1
+        [Toggle(SOFT_CLAMP)] _SoftClamp_Toggle ("Enable Soft Clamping (Compile)", int) = 1
+        _SoftClampPower ("Soft Clamp Power", Range(0, 10)) = 0
         [Toggle(DEBUG)] _Debug("Debug Colors (Compile)", int) = 1
         [Space(25)]
 
@@ -21,13 +23,22 @@ Shader "Unlit/MarbleStep"
         _ShadowWeight ("Layer Shadow Amount", Range(0, 1)) = 0.5
         _ShadowNoiseChance ("Layer Shadow Noise", Range(0, 1)) = 0.5
 
+        [Header(Does not account for camera roll)]
         [Toggle(ACCOUNT_VIEW_PITCH)] _ViewPitchInfluence_Toggle ("View Pitch Angle Influence (Compile)", int) = 1
         _ViewPitchInfluence ("View Pitch Angle Influence", Range(0, 1)) = 1
-
+        [Space(10)]
 
         [Toggle(FILM_GRAIN)] _FilmGrain_Toggle ("Enable Film Grain (Compile)", int) = 1
         _FilmGrainIntensity ("Grain Intensity", Range(0, 1)) = 0.5
         _FilmGrainColor ("Grain Color", Color) = (.25, .5, .5, 1)
+
+        
+
+
+        [Header(Color Adjust)]
+        [Space(10)]
+        _Saturation ("Saturation", Range(0, 2)) = 1
+        _Value      ("Value", Range(0, 5)) = 1
 
     }
     SubShader
@@ -45,6 +56,7 @@ Shader "Unlit/MarbleStep"
             #pragma shader_feature DEBUG
             #pragma shader_feature ACCOUNT_VIEW_PITCH
             #pragma shader_feature FILM_GRAIN
+            #pragma shader_feature SOFT_CLAMP
 
             #include "UnityCG.cginc"
 
@@ -53,6 +65,7 @@ Shader "Unlit/MarbleStep"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
+                float3 tangent : TANGENT;
             };
 
             struct v2f
@@ -81,6 +94,10 @@ Shader "Unlit/MarbleStep"
 
             float _FilmGrainIntensity;
             float4 _FilmGrainColor;
+
+            float _SoftClampPower;
+            float _Saturation;
+            float _Value;
 
             // https://stackoverflow.com/a/4275343
             float rand(float2 uv) {
@@ -112,6 +129,28 @@ Shader "Unlit/MarbleStep"
                 );
             }
 
+            inline float3 projectOnPlane( float3 vec, float3 normal )
+            {
+                // Assumes normal is normalized
+                return vec - normal * dot( vec, normal );
+            }
+
+            // float4 createPlane(float3 normal, float3 position) 
+            // {
+            //     return float4(
+            //         normal.x,
+            //         0,
+            //         normal.z,
+            //         (normal.x * (-position.x)) - (0 * position.y) - (normal.z * position.z)
+            //     );
+
+            // }
+
+            // float distToPlane(float3 pos, float4 plane)
+            // {
+            //     return abs((plane.x * pos.x) + (plane.y * pos.y) + (plane.z * pos.z) + plane.w ) / sqrt((plane.x * plane.x) + (plane.y * plane.y) + (plane.z * plane.z));
+            // }
+
             v2f vert (appdata v)
             {
                
@@ -123,6 +162,8 @@ Shader "Unlit/MarbleStep"
                 
                 float3 cameraModelViewDir  = UNITY_MATRIX_IT_MV[2].xyz;
 
+                // TODO: FORCE DEPTH INTO BELL CURVE, MAKE IT NOT LINEAR
+
 // Make it s.t. the cameras pitch has no affect on how the model is rendered
 #ifdef ACCOUNT_VIEW_PITCH
                 // Get Right Vector in Camera-Model-Space
@@ -132,7 +173,9 @@ Shader "Unlit/MarbleStep"
                 float3 cameraViewDir = UNITY_MATRIX_V[2].xyz;
 
                 // Calculate Cameras pitch where a pitch of 0 signifies the cameras view is parrallel to the floor.
-                float pitchDiff = _ViewPitchInfluence * acos(mul((float3x3)UNITY_MATRIX_V, float3(0,1,0)).y);
+                //float pitchDiff = _ViewPitchInfluence * acos(mul((float3x3)UNITY_MATRIX_V, float3(0,1,0)).y);
+                float pitchDiff = _ViewPitchInfluence * acos(UNITY_MATRIX_V[1].y);
+                float rollDiff  = acos(UNITY_MATRIX_IT_MV[1].x);
 
                 // Account if camera is looking up or down
                 pitchDiff *= cameraViewDir.y < 0 ? -1 : 1;
@@ -144,6 +187,7 @@ Shader "Unlit/MarbleStep"
                 // Calculate depth to vertex in a Camera-Model-Space; need to account for both of their rotaion, position, and scale
                 o.depth = mul(UNITY_MATRIX_IT_MV, v.vertex  + (cameraModelViewDir * _Offset)).z * _Contrast;
 #endif
+
                 o.uv = v.uv;
                 return o;
             }
@@ -151,11 +195,17 @@ Shader "Unlit/MarbleStep"
             fixed4 frag (v2f i) : SV_Target
             {
                 static const float PI = 3.141592653589793238462643383279502884197;
+                static const float E  = 2.718281828459045;
 
                 fixed4 col;
 
                 // Normalize depth to be [0 - 1]
                 i.depth = (i.depth - _MinDepth) / (_MaxDepth - _MinDepth);
+
+#if SOFT_CLAMP
+                i.depth = (2 / (1 + pow(E, -i.depth * _SoftClampPower))) - 1;
+#endif
+
 
 // Show debug colors to help understand how contrast, offset, mindepth, and max depth influence output   
 #if DEBUG
@@ -205,6 +255,12 @@ Shader "Unlit/MarbleStep"
                 float4 grain = _FilmGrainColor * _FilmGrainIntensity * frac( 10000 * sin ((i.screenPos.x + i.screenPos.y * _Time.z * 100) * PI));
                 col += grain; 
 #endif
+
+                float greyscale = dot(col, fixed3(.222, .707, .071));  // Convert to greyscale numbers with magic luminance numbers
+                col.xyz = lerp(float3(greyscale, greyscale, greyscale), col.xyz, _Saturation);
+                
+                col.xyz *= _Value;
+
                 return col;
             }
             ENDCG
