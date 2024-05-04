@@ -40,6 +40,10 @@ Shader "Unlit/MarbleStep"
         _Saturation ("Saturation", Range(0, 2)) = 1
         _Value      ("Value", Range(0, 5)) = 1
 
+        [Header(GLITCH)]
+        [Space(10)]
+        [Toggle(GLITCH)] _GLITCH_TOGGLE ("Enable Glitch Effect (Compile)", int) = 0
+
     }
     SubShader
     {
@@ -57,6 +61,7 @@ Shader "Unlit/MarbleStep"
             #pragma shader_feature ACCOUNT_VIEW_PITCH
             #pragma shader_feature FILM_GRAIN
             #pragma shader_feature SOFT_CLAMP
+            #pragma shader_feature GLITCH
 
             #include "UnityCG.cginc"
 
@@ -74,6 +79,9 @@ Shader "Unlit/MarbleStep"
                 float2 uv: TEXCOORD1;
                 float  depth : DEPTH;
                 float2 screenPos :TEXCOORD2;
+#ifdef GLITCH
+                float glitch : TEXCOORD3;
+#endif
             };
 
             sampler2D _MainTex;
@@ -156,7 +164,18 @@ Shader "Unlit/MarbleStep"
                
                 v2f o;
 
-                // Vertex position in world
+#ifdef GLITCH
+                o.glitch = 0;
+                //Vertex position in world
+                float4 modelPos = mul(UNITY_MATRIX_MV, v.vertex);
+                float factor = 15 * sin(_Time.x*1000);
+                if (rand(float2(floor(modelPos.x * factor)/factor, _Time.x)) > 0.993) {
+                    v.vertex.xyz += UNITY_MATRIX_MV[1].xyz *  sin(_Time.x/10) * sin(_Time.w * 10 + modelPos.x)/7;
+                    //v.vertex.xyz += UNITY_MATRIX_MV[0].xyz *  sin(_Time.x/10) * sin(_Time.w * 10 + modelPos.x)/7;
+                    o.glitch=1;
+                }
+#endif
+
                 o.vertex    = UnityObjectToClipPos(v.vertex);
                 o.screenPos = ComputeScreenPos(o.vertex);
                 
@@ -259,8 +278,13 @@ Shader "Unlit/MarbleStep"
                 float greyscale = dot(col, fixed3(.222, .707, .071));  // Convert to greyscale numbers with magic luminance numbers
                 col.xyz = lerp(float3(greyscale, greyscale, greyscale), col.xyz, _Saturation);
                 
+                
                 col.xyz *= _Value;
-
+#ifdef GLITCH
+                if (i.glitch == 1) {
+                    return col += float4(0, 1, 0, 1) * frac( 10000 * sin ((i.screenPos.x + i.screenPos.y * _Time.z * 100) * PI)) / 2;
+                }
+#endif
                 return col;
             }
             ENDCG
