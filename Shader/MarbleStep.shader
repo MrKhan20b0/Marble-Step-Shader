@@ -9,7 +9,7 @@ Shader "Unlit/MarbleStep"
         _MaxDepth   ("Max Depth", Range(-10, 10)) = 2
         _MinDepth   ("Min Depth", Range(-10, 10)) = -2
         [MaterialToggle] _ClampDepth("Clamp Depth", Float) = 1
-        [Toggle(SOFT_CLAMP)] _SoftClamp_Toggle ("Enable Soft Clamping (Compile)", int) = 1
+        [Toggle(SOFT_DRIVE)] _SoftClamp_Toggle ("Enable Drive Clamping (Compile)", int) = 1
         _SoftClampPower ("Soft Clamp Power", Range(0, 10)) = 0
         [Toggle(DEBUG)] _Debug("Debug Colors (Compile)", int) = 1
         [Space(25)]
@@ -60,7 +60,7 @@ Shader "Unlit/MarbleStep"
             #pragma shader_feature DEBUG
             #pragma shader_feature ACCOUNT_VIEW_PITCH
             #pragma shader_feature FILM_GRAIN
-            #pragma shader_feature SOFT_CLAMP
+            #pragma shader_feature SOFT_DRIVE
             #pragma shader_feature GLITCH
 
             #include "UnityCG.cginc"
@@ -221,7 +221,7 @@ Shader "Unlit/MarbleStep"
                 // Normalize depth to be [0 - 1]
                 i.depth = (i.depth - _MinDepth) / (_MaxDepth - _MinDepth);
 
-#if SOFT_CLAMP
+#if SOFT_DRIVE
                 i.depth = (2 / (1 + pow(E, -i.depth * _SoftClampPower))) - 1;
 #endif
 
