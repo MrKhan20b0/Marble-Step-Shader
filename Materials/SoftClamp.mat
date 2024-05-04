@@ -13,9 +13,10 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - FILM_GRAIN
-  - SOFT_CLAMP
+  - SOFT_DRIVE
   m_InvalidKeywords:
   - DEBUG_ON
+  - SOFT_CLAMP
   - _CLAMPDEPTH_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -41,6 +42,7 @@ Material:
     - _Debug: 0
     - _FilmGrainIntensity: 0.69
     - _FilmGrain_Toggle: 1
+    - _GLITCH_TOGGLE: 0
     - _GrainFrequency: 0.5
     - _GrainIntensity: 0.47
     - _LineOffset: 0.001
