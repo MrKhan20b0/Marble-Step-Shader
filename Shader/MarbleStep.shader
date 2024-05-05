@@ -43,6 +43,10 @@ Shader "Unlit/MarbleStep"
         [Header(GLITCH)]
         [Space(10)]
         [Toggle(GLITCH)] _GLITCH_TOGGLE ("Enable Glitch Effect (Compile)", int) = 0
+        _GlitchSize ("Glitch Size", Range(1, 60)) = 15
+        _GlitchShiftAmount ("Glitch Shift Amount", Range(0, 10)) = 1
+        _GlitchChance ("Glitch Chance", Range(0.9, 1.0)) =  0.993
+        _GlitchColor ("Glitch Color", Color) = (.0, 1, .0, 1)
 
     }
     SubShader
@@ -107,6 +111,11 @@ Shader "Unlit/MarbleStep"
             float _Saturation;
             float _Value;
 
+            float _GlitchSize;
+            float _GlitchChance;
+            float _GlitchShiftAmount;
+            float4 _GlitchColor;
+
             // https://stackoverflow.com/a/4275343
             float rand(float2 uv) {
                 return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
@@ -168,9 +177,9 @@ Shader "Unlit/MarbleStep"
                 o.glitch = 0;
                 //Vertex position in world
                 float4 modelPos = mul(UNITY_MATRIX_MV, v.vertex);
-                float factor = 15 * sin(_Time.x*1000);
-                if (rand(float2(floor(modelPos.x * factor)/factor, _Time.x)) > 0.993) {
-                    v.vertex.xyz += UNITY_MATRIX_MV[1].xyz *  sin(_Time.x/10) * sin(_Time.w * 10 + modelPos.x)/7;
+                float factor = _GlitchSize * sin(_Time.x*1000);
+                if (rand(float2(floor(modelPos.x * factor)/factor, _Time.x)) > _GlitchChance) {
+                    v.vertex.xyz += UNITY_MATRIX_MV[1].xyz *  sin(_Time.x/10) * sin(_Time.w * 10 + modelPos.x)/7 * _GlitchShiftAmount;
                     //v.vertex.xyz += UNITY_MATRIX_MV[0].xyz *  sin(_Time.x/10) * sin(_Time.w * 10 + modelPos.x)/7;
                     o.glitch=1;
                 }
@@ -282,7 +291,7 @@ Shader "Unlit/MarbleStep"
                 col.xyz *= _Value;
 #ifdef GLITCH
                 if (i.glitch == 1) {
-                    return col += float4(0, 1, 0, 1) * frac( 10000 * sin ((i.screenPos.x + i.screenPos.y * _Time.z * 100) * PI)) / 2;
+                    return col += _GlitchColor * frac( 10000 * sin ((i.screenPos.x + i.screenPos.y * _Time.z * 100) * PI)) / 2;
                 }
 #endif
                 return col;
