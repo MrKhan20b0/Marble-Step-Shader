@@ -7,13 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Test
+  m_Name: Test 2
   m_Shader: {fileID: 4800000, guid: 8fcb30ed802db62429eaab8e2e089b75, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - FILM_GRAIN
-  - GLITCH
   - SOFT_DRIVE
   m_InvalidKeywords:
   - DEBUG_ON
@@ -38,14 +37,14 @@ Material:
     - _CON2: 0
     - _CamOffset: -1
     - _ClampDepth: 1
-    - _Contrast: 20
+    - _Contrast: 16.4
     - _DEBUG_SLDIER: 0
     - _DScale: 1
     - _Debug: 0
-    - _FilmGrainIntensity: 0.69
+    - _FilmGrainIntensity: 1
     - _FilmGrain_Toggle: 1
-    - _GLITCH_TOGGLE: 1
-    - _GlitchChance: 0.9894
+    - _GLITCH_TOGGLE: 0
+    - _GlitchChance: 0.993
     - _GlitchShiftAmount: 1
     - _GlitchSize: 15
     - _GrainFrequency: 0.5
@@ -54,22 +53,22 @@ Material:
     - _Lines: 0.0001
     - _MaxDepth: 3.78
     - _MinDepth: -4
-    - _Offset: -0.14
+    - _Offset: -0.162
     - _Saturation: 2
     - _ShadowNoise: 0.5
-    - _ShadowNoiseChance: 0.335
-    - _ShadowWeight: 0.341
-    - _SoftClampPower: 1.41
+    - _ShadowNoiseChance: 0.232
+    - _ShadowWeight: 0.282
+    - _SoftClampPower: 0.97
     - _SoftClamp_Toggle: 1
-    - _Steps: 88
-    - _Value: 1.1
+    - _Steps: 22
+    - _Value: 1.58
     - _ViewPitchInfluence: 1
     - _ViewPitchInfluence_Toggle: 0
     m_Colors:
-    - _ColorOne: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorOne: {r: 0.368, g: 0.736, b: 0.736, a: 1}
     - _ColorTwo: {r: 0, g: 0.007843138, b: 0.29411766, a: 1}
-    - _FilmGrainColor: {r: 0.23921569, g: 0.24705882, b: 0.29411766, a: 1}
-    - _GlitchColor: {r: 0, g: 1, b: 0, a: 1}
+    - _FilmGrainColor: {r: 0.23921564, g: 0.24705878, b: 0.29411763, a: 1}
+    - _GlitchColor: {r: 0, g: 0.09999997, b: 0, a: 1}
     - _GrainColor: {r: 0.24999997, g: 0.5, b: 0.5, a: 1}
-    - _ShadowColor: {r: 0.035294056, g: 0, b: 1, a: 1}
+    - _ShadowColor: {r: 0, g: 0.47127295, b: 1, a: 1}
   m_BuildTextureStacks: []
