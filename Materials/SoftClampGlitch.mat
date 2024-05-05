@@ -14,9 +14,10 @@ Material:
   m_ValidKeywords:
   - FILM_GRAIN
   - GLITCH
-  - SOFT_CLAMP
+  - SOFT_DRIVE
   m_InvalidKeywords:
   - DEBUG_ON
+  - SOFT_CLAMP
   - _CLAMPDEPTH_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -43,6 +44,9 @@ Material:
     - _FilmGrainIntensity: 0.69
     - _FilmGrain_Toggle: 1
     - _GLITCH_TOGGLE: 1
+    - _GlitchChance: 0.993
+    - _GlitchShiftAmount: 1
+    - _GlitchSize: 15
     - _GrainFrequency: 0.5
     - _GrainIntensity: 0.47
     - _LineOffset: 0.001
