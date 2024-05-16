@@ -13,7 +13,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - FILM_GRAIN
-  - GLITCH
   - SOFT_DRIVE
   m_InvalidKeywords:
   - DEBUG_ON
@@ -44,7 +43,7 @@ Material:
     - _Debug: 0
     - _FilmGrainIntensity: 0.69
     - _FilmGrain_Toggle: 1
-    - _GLITCH_TOGGLE: 1
+    - _GLITCH_TOGGLE: 0
     - _GlitchChance: 0.9894
     - _GlitchShiftAmount: 1
     - _GlitchSize: 15

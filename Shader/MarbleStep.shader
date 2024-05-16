@@ -23,9 +23,8 @@ Shader "Unlit/MarbleStep"
         _ShadowWeight ("Layer Shadow Amount", Range(0, 1)) = 0.5
         _ShadowNoiseChance ("Layer Shadow Noise", Range(0, 1)) = 0.5
 
-        [Header(Does not account for camera roll)]
-        [Toggle(ACCOUNT_VIEW_PITCH)] _ViewPitchInfluence_Toggle ("View Pitch Angle Influence (Compile)", int) = 1
-        _ViewPitchInfluence ("View Pitch Angle Influence", Range(0, 1)) = 1
+        [Header()]
+        [Toggle(ACCOUNT_VIEW_PITCH_ROLL)] _ViewPitchInfluence_Toggle ("Ignore view roll & pitch (Compile)", int) = 1
         [Space(10)]
 
         [Toggle(FILM_GRAIN)] _FilmGrain_Toggle ("Enable Film Grain (Compile)", int) = 1
@@ -62,7 +61,8 @@ Shader "Unlit/MarbleStep"
             #pragma fragment frag
 
             #pragma shader_feature DEBUG
-            #pragma shader_feature ACCOUNT_VIEW_PITCH
+            #pragma shader_feature ACCOUNT_VIEW_PITCH_ROLL
+
             #pragma shader_feature FILM_GRAIN
             #pragma shader_feature SOFT_DRIVE
             #pragma shader_feature GLITCH
@@ -99,7 +99,6 @@ Shader "Unlit/MarbleStep"
             float _ShadowWeight;
             float _ShadowNoiseChance;
             float _ClampDepth;
-            float _ViewPitchInfluence;
 
             float _MinDepth;
             float _MaxDepth;
@@ -193,24 +192,28 @@ Shader "Unlit/MarbleStep"
                 // TODO: FORCE DEPTH INTO BELL CURVE, MAKE IT NOT LINEAR
 
 // Make it s.t. the cameras pitch has no affect on how the model is rendered
-#ifdef ACCOUNT_VIEW_PITCH
-                // Get Right Vector in Camera-Model-Space
-                float3 cameraModelRightDirection = UNITY_MATRIX_MV[0].xyz;
+#ifdef ACCOUNT_VIEW_PITCH_ROLL
 
-                // Get Camera Forward vector
-                float3 cameraViewDir = UNITY_MATRIX_V[2].xyz;
+                float4x4 it_mv = UNITY_MATRIX_IT_MV;
 
-                // Calculate Cameras pitch where a pitch of 0 signifies the cameras view is parrallel to the floor.
-                //float pitchDiff = _ViewPitchInfluence * acos(mul((float3x3)UNITY_MATRIX_V, float3(0,1,0)).y);
-                float pitchDiff = _ViewPitchInfluence * acos(UNITY_MATRIX_V[1].y);
-                float rollDiff  = acos(UNITY_MATRIX_IT_MV[1].x);
+                // Remove roll from right basis vector
+                it_mv[0].y = 0;
+                it_mv[0].xyz = normalize(it_mv[0].xyz);
 
-                // Account if camera is looking up or down
-                pitchDiff *= cameraViewDir.y < 0 ? -1 : 1;
+                // Remove pitch & roll from up basis vector
+                it_mv[1].xz = 0;
+                it_mv[1].y  = 1;
 
-                // Rotate model s.t. it would appear to the camera as it would if the cameras pitch was 0.
-                float3x3 modelRotMat = AngleAxis3x3(pitchDiff, cameraModelRightDirection);
-                o.depth = mul(UNITY_MATRIX_IT_MV, mul(modelRotMat, v.vertex)  + (cameraModelViewDir * _Offset)).z * _Contrast;
+                // Remove pitch from forward basis vector
+                it_mv[2].y = 0;
+                it_mv[2].xyz = normalize(it_mv[3].xyz);
+
+                // Copy position of object
+                it_mv[3].xyz = UNITY_MATRIX_M[3].xyz;
+
+                cameraModelViewDir = it_mv[2].xyz;
+
+                o.depth = mul(it_mv, v.vertex + (cameraModelViewDir * _Offset)).z * _Contrast;
 #else
                 // Calculate depth to vertex in a Camera-Model-Space; need to account for both of their rotaion, position, and scale
                 o.depth = mul(UNITY_MATRIX_IT_MV, v.vertex  + (cameraModelViewDir * _Offset)).z * _Contrast;

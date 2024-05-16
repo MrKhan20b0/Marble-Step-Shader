@@ -41,6 +41,10 @@ Material:
     - _Debug: 0
     - _FilmGrainIntensity: 0.1
     - _FilmGrain_Toggle: 1
+    - _GLITCH_TOGGLE: 0
+    - _GlitchChance: 0.993
+    - _GlitchShiftAmount: 1
+    - _GlitchSize: 15
     - _GrainFrequency: 0.5
     - _GrainIntensity: 0.47
     - _LineOffset: 0.001
@@ -62,6 +66,7 @@ Material:
     - _ColorOne: {r: 1, g: 1, b: 1, a: 1}
     - _ColorTwo: {r: 0, g: 0.007843138, b: 0.29411766, a: 1}
     - _FilmGrainColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
+    - _GlitchColor: {r: 0, g: 1, b: 0, a: 1}
     - _GrainColor: {r: 0.24999997, g: 0.5, b: 0.5, a: 1}
     - _ShadowColor: {r: 0.035294056, g: 0, b: 1, a: 1}
   m_BuildTextureStacks: []
